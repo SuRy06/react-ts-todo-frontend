@@ -1,0 +1,165 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.app-shell {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 80px 1.5rem 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.home-content,
+.todos-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.home-content h2,
+.todos-content h2 {
+  margin: 0;
+  font-size: 2rem;
+  background: linear-gradient(135deg, #646cff 0%, #747bff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+.home-content p {
+  color: #a8b0d8;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.todo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.todo-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.todo-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #646cff;
+  margin: 0;
+  padding: 0 0.25rem;
+}
+
+.todo-item {
+  padding: 0.9rem 1rem;
+  border: 1px solid #2f334a;
+  border-radius: 10px;
+  background-color: #1b1d2b;
+  color: #f5f6ff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.todo-item:hover {
+  border-color: #646cff;
+  box-shadow: 0 6px 20px rgba(100, 108, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.todo-item:focus-visible {
+  outline: 2px solid #646cff;
+  outline-offset: 2px;
+}
+
+.todo-done {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-color: #059669;
+  color: #ecfdf5;
+  text-decoration: line-through;
+  opacity: 0.9;
+}
+
+.todo-done:hover {
+  border-color: #047857;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+}
+
+.done-list {
+  opacity: 0.85;
+}
+
+.todo-empty {
+  padding: 0.9rem 1rem;
+  border: 1px dashed #646cff;
+  border-radius: 10px;
+  color: #c9ccff;
+  text-align: center;
+  background-color: #101223;
+}
+
+@media (prefers-color-scheme: light) {
+  .app-shell {
+    padding: 0 1.25rem;
+  }
+
+  .todo-item {
+    border-color: #e0e7ff;
+    background-color: #ffffff;
+    color: #1f2430;
+    box-shadow: 0 6px 18px rgba(100, 108, 255, 0.08);
+  }
+
+  .todo-item:hover {
+    border-color: #646cff;
+    box-shadow: 0 6px 20px rgba(100, 108, 255, 0.15);
+  }
+
+  .todo-done {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-color: #059669;
+    color: #ecfdf5;
+  }
+
+  .todo-done:hover {
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25);
+  }
+
+  .section-title {
+    color: #4f46e5;
+  }
+
+  .todo-empty {
+    background-color: #f6f7ff;
+    color: #444b66;
+    border-color: #cdd5ff;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}

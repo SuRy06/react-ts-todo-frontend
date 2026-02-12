@@ -1,0 +1,161 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #1b1d2b;
+  border: 1px solid #2f334a;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+}
+
+.modal-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.3rem;
+  color: #f5f6ff;
+  font-weight: 600;
+}
+
+.modal-description {
+  margin: 0 0 1.5rem 0;
+  color: #a8b0d8;
+  font-size: 0.95rem;
+}
+
+.passcode-input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #2f334a;
+  border-radius: 8px;
+  background-color: #0f1119;
+  color: #f5f6ff;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.passcode-input:focus {
+  outline: none;
+  border-color: #646cff;
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.1);
+}
+
+.passcode-input-error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+  animation: shake 0.3s ease-in-out;
+}
+
+.error-message {
+  color: #f87171;
+  font-size: 0.85rem;
+  margin: 0 0 1rem 0;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.btn-cancel,
+.btn-submit {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel {
+  background-color: #2f334a;
+  color: #a8b0d8;
+  border: 1px solid #3f4456;
+}
+
+.btn-cancel:hover {
+  background-color: #3f4456;
+  color: #c9ccff;
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, #646cff 0%, #747bff 100%);
+  color: #ffffff;
+}
+
+.btn-submit:hover {
+  box-shadow: 0 6px 20px rgba(100, 108, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-submit:active {
+  transform: translateY(0);
+}
+
+@media (prefers-color-scheme: light) {
+  .modal-content {
+    background-color: #ffffff;
+    border-color: #e0e7ff;
+  }
+
+  .modal-title {
+    color: #1f2430;
+  }
+
+  .modal-description {
+    color: #646b7a;
+  }
+
+  .passcode-input {
+    background-color: #f6f7ff;
+    border-color: #e0e7ff;
+    color: #1f2430;
+  }
+
+  .passcode-input:focus {
+    border-color: #646cff;
+    box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.08);
+  }
+
+  .btn-cancel {
+    background-color: #f0f1f9;
+    color: #646b7a;
+    border-color: #e0e7ff;
+  }
+
+  .btn-cancel:hover {
+    background-color: #e8eaf6;
+    color: #3f4456;
+  }
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}

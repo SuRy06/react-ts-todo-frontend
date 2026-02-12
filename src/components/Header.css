@@ -1,0 +1,7 @@
+/* Header styles can be extended here as needed */
+
+.logout-btn:hover {
+  background-color: rgba(100, 108, 255, 0.3);
+  color: #646cff;
+  border-color: rgba(100, 108, 255, 0.5);
+}
