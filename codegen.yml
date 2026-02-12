@@ -1,5 +1,7 @@
 schema: ../nest-todo-graphql-prisma-backend/schema.gql
-documents: "src/**/*.{ts,tsx,graphql}"
+documents:
+  - "src/**/*.{ts,tsx,graphql}"
+  - "!src/services/graphql/generated/**"
 generates:
   src/services/graphql/generated/graphql.ts:
     plugins:

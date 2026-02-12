@@ -1,10 +1,13 @@
-query Todos {
-  todos {
-    id
-    name
-    status
-    createdAt
-    updatedAt
+query Todos($skip: Int!, $take: Int!, $statuses: [TodoStatus!]) {
+  todos(skip: $skip, take: $take, statuses: $statuses) {
+    items {
+      createdAt
+      id
+      name
+      status
+      updatedAt
+    }
+    totalCount
   }
 }
 

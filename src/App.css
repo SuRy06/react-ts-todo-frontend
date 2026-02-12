@@ -23,6 +23,48 @@
   gap: 1.5rem;
 }
 
+.todos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.todo-tabs {
+  display: inline-flex;
+  gap: 0.5rem;
+  padding: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid #2f334a;
+  background: rgba(20, 22, 38, 0.6);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(10px);
+  width: fit-content;
+}
+
+.todo-tab {
+  border: 1px solid transparent;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: transparent;
+  color: #c9ccff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: all 0.2s ease;
+}
+
+.todo-tab:hover {
+  color: #ffffff;
+  border-color: rgba(100, 108, 255, 0.35);
+}
+
+.todo-tab.active {
+  background: linear-gradient(135deg, #646cff 0%, #747bff 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 20px rgba(100, 108, 255, 0.35);
+}
+
 .home-content h2,
 .todos-content h2 {
   margin: 0;
@@ -32,6 +74,47 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   font-weight: 700;
+}
+
+.pagination {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid #2f334a;
+  background: rgba(20, 22, 38, 0.7);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.pagination-info {
+  font-size: 0.85rem;
+  color: #c9ccff;
+  padding: 0 0.35rem;
+  white-space: nowrap;
+}
+
+.pagination button {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid #2f334a;
+  background: transparent;
+  color: #f5f6ff;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+  border-color: #646cff;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(100, 108, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .home-content p {
@@ -153,6 +236,36 @@
     background-color: #f6f7ff;
     color: #444b66;
     border-color: #cdd5ff;
+  }
+
+  .pagination {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: #e0e7ff;
+    box-shadow: 0 10px 30px rgba(79, 70, 229, 0.12);
+  }
+
+  .pagination-info {
+    color: #4f46e5;
+  }
+
+  .pagination button {
+    border-color: #e0e7ff;
+    color: #1f2430;
+  }
+
+  .todo-tabs {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: #e0e7ff;
+    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.12);
+  }
+
+  .todo-tab {
+    color: #4f46e5;
+  }
+
+  .todo-tab:hover {
+    color: #1f2430;
+    border-color: rgba(79, 70, 229, 0.3);
   }
 }
 

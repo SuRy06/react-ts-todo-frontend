@@ -49,12 +49,18 @@ export type MutationUpdateTodoArgs = {
 export type Query = {
   __typename?: 'Query';
   todo: Todo;
-  todos: Array<Todo>;
+  todos: TodoPage;
 };
 
 
 export type QueryTodoArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryTodosArgs = {
+  skip?: Scalars['Int']['input'];
+  take?: Scalars['Int']['input'];
 };
 
 export type Todo = {
@@ -64,6 +70,12 @@ export type Todo = {
   name: Scalars['String']['output'];
   status: TodoStatus;
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type TodoPage = {
+  __typename?: 'TodoPage';
+  items: Array<Todo>;
+  totalCount: Scalars['Int']['output'];
 };
 
 /** Current status of a todo item */
@@ -78,10 +90,13 @@ export type UpdateTodoInput = {
   status?: InputMaybe<TodoStatus>;
 };
 
-export type TodosQueryVariables = Exact<{ [key: string]: never; }>;
+export type TodosQueryVariables = Exact<{
+  skip: Scalars['Int']['input'];
+  take: Scalars['Int']['input'];
+}>;
 
 
-export type TodosQuery = { __typename?: 'Query', todos: Array<{ __typename?: 'Todo', id: string, name: string, status: TodoStatus, createdAt: string, updatedAt: string }> };
+export type TodosQuery = { __typename?: 'Query', todos: { __typename?: 'TodoPage', totalCount: number, items: Array<{ __typename?: 'Todo', createdAt: string, id: string, name: string, status: TodoStatus, updatedAt: string }> } };
 
 export type CreateTodoMutationVariables = Exact<{
   name: Scalars['String']['input'];
@@ -100,13 +115,16 @@ export type UpdateTodoStatusMutation = { __typename?: 'Mutation', updateTodo: { 
 
 
 export const TodosDocument = gql`
-    query Todos {
-  todos {
-    id
-    name
-    status
-    createdAt
-    updatedAt
+    query Todos($skip: Int!, $take: Int!) {
+  todos(skip: $skip, take: $take) {
+    items {
+      createdAt
+      id
+      name
+      status
+      updatedAt
+    }
+    totalCount
   }
 }
     `;
@@ -123,10 +141,12 @@ export const TodosDocument = gql`
  * @example
  * const { data, loading, error } = useTodosQuery({
  *   variables: {
+ *      skip: // value for 'skip'
+ *      take: // value for 'take'
  *   },
  * });
  */
-export function useTodosQuery(baseOptions?: Apollo.QueryHookOptions<TodosQuery, TodosQueryVariables>) {
+export function useTodosQuery(baseOptions: Apollo.QueryHookOptions<TodosQuery, TodosQueryVariables> & ({ variables: TodosQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<TodosQuery, TodosQueryVariables>(TodosDocument, options);
       }

@@ -8,6 +8,7 @@ import { Routes, Route } from "react-router-dom";
 import {
   TodosDocument,
   type TodosQuery,
+  type TodoStatus,
   useCreateTodoMutation,
   useTodosQuery,
   useUpdateTodoStatusMutation,
@@ -15,6 +16,9 @@ import {
 
 // Simple passcode gate for toggling todo status.
 const CORRECT_PASSCODE = "1234";
+const PAGE_SIZE = 10;
+const PENDING_STATUSES: TodoStatus[] = ["UNDONE", "INPROGRESS"];
+const DONE_STATUSES: TodoStatus[] = ["DONE"];
 
 function App() {
   // UI state for the passcode modal and any pending toggle action.
@@ -22,9 +26,39 @@ function App() {
   const [pendingToggleId, setPendingToggleId] = useState<string | null>(null);
   // Local error state to supplement GraphQL errors.
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // Pagination state for each tab.
+  const [pendingPage, setPendingPage] = useState(1);
+  const [donePage, setDonePage] = useState(1);
 
-  // Fetch todos from the GraphQL API.
-  const { data, loading, error } = useTodosQuery();
+  // Fetch pending todos.
+  const pendingSkip = (pendingPage - 1) * PAGE_SIZE;
+  const pendingVariables = {
+    skip: pendingSkip,
+    take: PAGE_SIZE,
+    statuses: PENDING_STATUSES,
+  };
+  const {
+    data: pendingData,
+    loading: pendingLoading,
+    error: pendingError,
+  } = useTodosQuery({
+    variables: pendingVariables,
+  });
+
+  // Fetch done todos.
+  const doneSkip = (donePage - 1) * PAGE_SIZE;
+  const doneVariables = {
+    skip: doneSkip,
+    take: PAGE_SIZE,
+    statuses: DONE_STATUSES,
+  };
+  const {
+    data: doneData,
+    loading: doneLoading,
+    error: doneError,
+  } = useTodosQuery({
+    variables: doneVariables,
+  });
   // Create todo mutation with cache update for instant UI feedback.
   const [createTodoMutation] = useCreateTodoMutation({
     update(cache, result) {
@@ -36,11 +70,25 @@ function App() {
       // Merge the new todo into the existing cached list.
       const existing = cache.readQuery<TodosQuery>({
         query: TodosDocument,
+        variables: pendingVariables,
       });
-      const previous = existing?.todos ?? [];
+      const previous = existing?.todos.items ?? [];
+      const nextItems =
+        pendingSkip === 0
+          ? [created, ...previous].slice(0, PAGE_SIZE)
+          : previous;
+      const nextTotal = (existing?.todos.totalCount ?? 0) + 1;
+
       cache.writeQuery<TodosQuery>({
         query: TodosDocument,
-        data: { todos: [...previous, created] },
+        variables: pendingVariables,
+        data: {
+          todos: {
+            __typename: "TodoPage",
+            items: nextItems,
+            totalCount: nextTotal,
+          },
+        },
       });
     },
   });
@@ -53,28 +101,131 @@ function App() {
       }
 
       // Replace the updated todo in the cached list.
-      const existing = cache.readQuery<TodosQuery>({
+      const pendingExisting = cache.readQuery<TodosQuery>({
         query: TodosDocument,
+        variables: pendingVariables,
       });
-      if (!existing?.todos) {
+      const doneExisting = cache.readQuery<TodosQuery>({
+        query: TodosDocument,
+        variables: doneVariables,
+      });
+
+      const pendingItems = pendingExisting?.todos.items ?? [];
+      const doneItems = doneExisting?.todos.items ?? [];
+      const pendingHas = pendingItems.some((todo) => todo.id === updated.id);
+      const doneHas = doneItems.some((todo) => todo.id === updated.id);
+
+      if (updated.status === "DONE") {
+        const nextPendingItems = pendingHas
+          ? pendingItems.filter((todo) => todo.id !== updated.id)
+          : pendingItems;
+        const nextPendingTotal = pendingHas
+          ? Math.max(0, (pendingExisting?.todos.totalCount ?? 0) - 1)
+          : (pendingExisting?.todos.totalCount ?? 0);
+
+        const nextDoneItems =
+          doneSkip === 0
+            ? [
+                updated,
+                ...doneItems.filter((todo) => todo.id !== updated.id),
+              ].slice(0, PAGE_SIZE)
+            : doneItems;
+        const nextDoneTotal = doneHas
+          ? (doneExisting?.todos.totalCount ?? 0)
+          : (doneExisting?.todos.totalCount ?? 0) + 1;
+
+        if (pendingExisting) {
+          cache.writeQuery<TodosQuery>({
+            query: TodosDocument,
+            variables: pendingVariables,
+            data: {
+              todos: {
+                __typename: "TodoPage",
+                items: nextPendingItems,
+                totalCount: nextPendingTotal,
+              },
+            },
+          });
+        }
+
+        if (doneExisting) {
+          cache.writeQuery<TodosQuery>({
+            query: TodosDocument,
+            variables: doneVariables,
+            data: {
+              todos: {
+                __typename: "TodoPage",
+                items: nextDoneItems,
+                totalCount: nextDoneTotal,
+              },
+            },
+          });
+        }
+
         return;
       }
 
-      cache.writeQuery<TodosQuery>({
-        query: TodosDocument,
-        data: {
-          todos: existing.todos.map((todo) =>
-            todo.id === updated.id ? updated : todo,
-          ),
-        },
-      });
+      const nextPendingItems =
+        pendingSkip === 0
+          ? [
+              updated,
+              ...pendingItems.filter((todo) => todo.id !== updated.id),
+            ].slice(0, PAGE_SIZE)
+          : pendingHas
+            ? pendingItems.map((todo) =>
+                todo.id === updated.id ? updated : todo,
+              )
+            : pendingItems;
+      const nextPendingTotal = pendingHas
+        ? (pendingExisting?.todos.totalCount ?? 0)
+        : (pendingExisting?.todos.totalCount ?? 0) + 1;
+
+      const nextDoneItems = doneHas
+        ? doneItems.filter((todo) => todo.id !== updated.id)
+        : doneItems;
+      const nextDoneTotal = doneHas
+        ? Math.max(0, (doneExisting?.todos.totalCount ?? 0) - 1)
+        : (doneExisting?.todos.totalCount ?? 0);
+
+      if (pendingExisting) {
+        cache.writeQuery<TodosQuery>({
+          query: TodosDocument,
+          variables: pendingVariables,
+          data: {
+            todos: {
+              __typename: "TodoPage",
+              items: nextPendingItems,
+              totalCount: nextPendingTotal,
+            },
+          },
+        });
+      }
+
+      if (doneExisting) {
+        cache.writeQuery<TodosQuery>({
+          query: TodosDocument,
+          variables: doneVariables,
+          data: {
+            todos: {
+              __typename: "TodoPage",
+              items: nextDoneItems,
+              totalCount: nextDoneTotal,
+            },
+          },
+        });
+      }
     },
   });
 
   // Normalize data for rendering.
-  const todos = data?.todos ?? [];
-  const isLoading = loading;
-  const displayedErrorMessage = error?.message ?? errorMessage;
+  const pendingTodos = pendingData?.todos.items ?? [];
+  const doneTodos = doneData?.todos.items ?? [];
+  const pendingTotalCount = pendingData?.todos.totalCount ?? 0;
+  const doneTotalCount = doneData?.todos.totalCount ?? 0;
+  const allTodos = [...pendingTodos, ...doneTodos];
+  const isLoading = pendingLoading || doneLoading;
+  const displayedErrorMessage =
+    pendingError?.message ?? doneError?.message ?? errorMessage;
 
   // Create a new todo and handle any errors.
   const handleAddTodo = async (text: string) => {
@@ -103,7 +254,7 @@ function App() {
     }
 
     // Look up the current todo to determine next status.
-    const current = todos.find((todo) => todo.id === pendingToggleId);
+    const current = allTodos.find((todo) => todo.id === pendingToggleId);
     if (!current) {
       return;
     }
@@ -148,9 +299,17 @@ function App() {
             path="/todos"
             element={
               <TodosPage
-                todos={todos}
+                pendingTodos={pendingTodos}
+                doneTodos={doneTodos}
                 onAdd={handleAddTodo}
                 onToggleDone={handleToggleRequest}
+                pageSize={PAGE_SIZE}
+                pendingPage={pendingPage}
+                donePage={donePage}
+                pendingTotalCount={pendingTotalCount}
+                doneTotalCount={doneTotalCount}
+                onPendingPageChange={(nextPage) => setPendingPage(nextPage)}
+                onDonePageChange={(nextPage) => setDonePage(nextPage)}
               />
             }
           />
