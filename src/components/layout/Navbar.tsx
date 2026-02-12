@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useAuth } from "../context/AuthContext.tsx";
+import { useAuth } from "../../context/AuthContext.tsx";
 import "./Navbar.css";
 import { NavLink } from "react-router-dom";
 

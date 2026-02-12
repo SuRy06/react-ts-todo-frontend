@@ -1,12 +1,6 @@
-export type TodoStatus = "UNDONE" | "INPROGRESS" | "DONE";
+import type { Todo } from "../services/graphql/generated/graphql";
 
-export type Todo = {
-  id: string;
-  name: string;
-  status: TodoStatus;
-  createdAt?: string;
-  updatedAt?: string;
-};
+export type { Todo, TodoStatus } from "../services/graphql/generated/graphql";
 export type TodoListProps = {
   todos: Todo[];
   onToggleDone: (id: string) => void;

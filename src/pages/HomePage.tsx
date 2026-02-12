@@ -1,4 +1,4 @@
-import TodoInput from "../components/TodoInput.tsx";
+import TodoInput from "../components/todos/TodoInput.tsx";
 
 type HomePageProps = { onAdd: (text: string) => void };
 

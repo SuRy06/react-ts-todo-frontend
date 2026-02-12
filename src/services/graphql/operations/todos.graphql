@@ -1,0 +1,29 @@
+query Todos {
+  todos {
+    id
+    name
+    status
+    createdAt
+    updatedAt
+  }
+}
+
+mutation CreateTodo($name: String!) {
+  createTodo(createTodoInput: { name: $name }) {
+    id
+    name
+    status
+    createdAt
+    updatedAt
+  }
+}
+
+mutation UpdateTodoStatus($id: String!, $status: TodoStatus!) {
+  updateTodo(updateTodoInput: { id: $id, status: $status }) {
+    id
+    name
+    status
+    createdAt
+    updatedAt
+  }
+}

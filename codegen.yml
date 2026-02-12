@@ -1,0 +1,15 @@
+schema: ../nest-todo-graphql-prisma-backend/schema.gql
+documents: "src/**/*.{ts,tsx,graphql}"
+generates:
+  src/services/graphql/generated/graphql.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
+    config:
+      withHooks: true
+      withHOC: false
+      withComponent: false
+      enumsAsTypes: true
+      scalars:
+        DateTime: string

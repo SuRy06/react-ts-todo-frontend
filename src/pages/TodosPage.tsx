@@ -1,5 +1,5 @@
-import TodoInput from "../components/TodoInput.tsx";
-import TodoList from "../components/TodoList.tsx";
+import TodoInput from "../components/todos/TodoInput.tsx";
+import TodoList from "../components/todos/TodoList.tsx";
 import type { Todo } from "../types/index.ts";
 
 type TodosPageProps = {

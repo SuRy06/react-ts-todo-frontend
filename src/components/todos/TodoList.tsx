@@ -1,6 +1,7 @@
-import type { TodoListProps } from "../types/index.ts";
+import type { TodoListProps } from "../../types/index.ts";
 
 function TodoList({ todos, onToggleDone }: TodoListProps) {
+  // Split todos into sections so we can render separate lists.
   const pendingTodos = todos.filter((todo) => todo.status !== "DONE");
   const doneTodos = todos.filter((todo) => todo.status === "DONE");
 
@@ -17,10 +18,12 @@ function TodoList({ todos, onToggleDone }: TodoListProps) {
               <li
                 key={todo.id}
                 className="todo-item"
+                // Make the whole list item act like a button.
                 onClick={() => onToggleDone(todo.id)}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
+                  // Support keyboard toggling for accessibility.
                   if (e.key === "Enter" || e.key === " ") {
                     onToggleDone(todo.id);
                   }
@@ -42,10 +45,12 @@ function TodoList({ todos, onToggleDone }: TodoListProps) {
               <li
                 key={todo.id}
                 className="todo-item todo-done"
+                // Same toggle behavior for completed items.
                 onClick={() => onToggleDone(todo.id)}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
+                  // Keep keyboard interaction consistent across lists.
                   if (e.key === "Enter" || e.key === " ") {
                     onToggleDone(todo.id);
                   }
