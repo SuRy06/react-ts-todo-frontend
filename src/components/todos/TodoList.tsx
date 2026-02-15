@@ -14,7 +14,9 @@ function TodoList({ todos, onToggleDone }: TodoListProps) {
           {todos.map((todo) => (
             <li
               key={todo.id}
-              className={`todo-item${todo.status === "DONE" ? " todo-done" : ""}`}
+              className={`todo-item${todo.status === "DONE" ? " todo-done" : ""}${
+                todo.status === "INPROGRESS" ? " todo-inprogress" : ""
+              }`}
               // Make the whole list item clickable to toggle status
               onClick={() => onToggleDone(todo.id)}
               role="button"
@@ -27,9 +29,33 @@ function TodoList({ todos, onToggleDone }: TodoListProps) {
               }}
             >
               {/* Display todo name */}
-              <span>{todo.name}</span>
-              {/* Show status badge */}
-              <span className="todo-status">{todo.status}</span>
+              <span className="todo-text">{todo.name}</span>
+              {/* Delete icon block (logic to be wired later) */}
+              <button
+                type="button"
+                className="todo-delete"
+                onClick={(event) => event.stopPropagation()}
+                aria-label={`Delete ${todo.name}`}
+              >
+                <span className="todo-delete-icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 6h18" />
+                    <path d="M8 6V4h8v2" />
+                    <path d="M6 6l1 14h10l1-14" />
+                    <path d="M10 11v6" />
+                    <path d="M14 11v6" />
+                  </svg>
+                </span>
+              </button>
             </li>
           ))}
         </ul>

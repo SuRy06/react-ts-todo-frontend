@@ -17,8 +17,9 @@ import {
 // Simple passcode gate for toggling todo status.
 const CORRECT_PASSCODE = "1234";
 const PAGE_SIZE = 10;
-const PENDING_STATUSES: TodoStatus[] = ["UNDONE", "INPROGRESS"];
-const DONE_STATUSES: TodoStatus[] = ["DONE"];
+const PENDING_STATUSES: TodoStatus = "UNDONE";
+const IN_PROGRESS_STATUSES: TodoStatus = "INPROGRESS";
+const DONE_STATUSES: TodoStatus = "DONE";
 
 function App() {
   // UI state for the passcode modal and any pending toggle action.
@@ -28,10 +29,15 @@ function App() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   // Pagination state for each tab.
   const [pendingPage, setPendingPage] = useState(1);
+  const [inProgressPage, setInProgressPage] = useState(1);
   const [donePage, setDonePage] = useState(1);
 
   // Fetch pending todos.
+  console.log("pendingPage", pendingPage);
+
   const pendingSkip = (pendingPage - 1) * PAGE_SIZE;
+  console.log("pendingSkip", pendingSkip);
+
   const pendingVariables = {
     skip: pendingSkip,
     take: PAGE_SIZE,
@@ -43,6 +49,21 @@ function App() {
     error: pendingError,
   } = useTodosQuery({
     variables: pendingVariables,
+  });
+
+  // Fetch in-progress todos.
+  const inProgressSkip = (inProgressPage - 1) * PAGE_SIZE;
+  const inProgressVariables = {
+    skip: inProgressSkip,
+    take: PAGE_SIZE,
+    statuses: IN_PROGRESS_STATUSES,
+  };
+  const {
+    data: inProgressData,
+    loading: inProgressLoading,
+    error: inProgressError,
+  } = useTodosQuery({
+    variables: inProgressVariables,
   });
 
   // Fetch done todos.
@@ -219,13 +240,22 @@ function App() {
 
   // Normalize data for rendering.
   const pendingTodos = pendingData?.todos.items ?? [];
+  console.log("pending=", pendingTodos);
+  const inProgressTodos = inProgressData?.todos.items ?? [];
+  console.log("inProgress=", inProgressTodos);
   const doneTodos = doneData?.todos.items ?? [];
+  console.log("done=", doneTodos);
+
   const pendingTotalCount = pendingData?.todos.totalCount ?? 0;
+  const inProgressTotalCount = inProgressData?.todos.totalCount ?? 0;
   const doneTotalCount = doneData?.todos.totalCount ?? 0;
-  const allTodos = [...pendingTodos, ...doneTodos];
-  const isLoading = pendingLoading || doneLoading;
+  const allTodos = [...pendingTodos, ...inProgressTodos, ...doneTodos];
+  const isLoading = pendingLoading || inProgressLoading || doneLoading;
   const displayedErrorMessage =
-    pendingError?.message ?? doneError?.message ?? errorMessage;
+    pendingError?.message ??
+    inProgressError?.message ??
+    doneError?.message ??
+    errorMessage;
 
   // Create a new todo and handle any errors.
   const handleAddTodo = async (text: string) => {
@@ -300,15 +330,21 @@ function App() {
             element={
               <TodosPage
                 pendingTodos={pendingTodos}
+                inProgressTodos={inProgressTodos}
                 doneTodos={doneTodos}
                 onAdd={handleAddTodo}
                 onToggleDone={handleToggleRequest}
                 pageSize={PAGE_SIZE}
                 pendingPage={pendingPage}
+                inProgressPage={inProgressPage}
                 donePage={donePage}
                 pendingTotalCount={pendingTotalCount}
+                inProgressTotalCount={inProgressTotalCount}
                 doneTotalCount={doneTotalCount}
                 onPendingPageChange={(nextPage) => setPendingPage(nextPage)}
+                onInProgressPageChange={(nextPage) =>
+                  setInProgressPage(nextPage)
+                }
                 onDonePageChange={(nextPage) => setDonePage(nextPage)}
               />
             }

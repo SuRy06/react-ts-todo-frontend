@@ -60,6 +60,7 @@ export type QueryTodoArgs = {
 
 export type QueryTodosArgs = {
   skip?: Scalars['Int']['input'];
+  statuses?: InputMaybe<Array<TodoStatus>>;
   take?: Scalars['Int']['input'];
 };
 
@@ -93,6 +94,7 @@ export type UpdateTodoInput = {
 export type TodosQueryVariables = Exact<{
   skip: Scalars['Int']['input'];
   take: Scalars['Int']['input'];
+  statuses?: InputMaybe<Array<TodoStatus> | TodoStatus>;
 }>;
 
 
@@ -115,8 +117,8 @@ export type UpdateTodoStatusMutation = { __typename?: 'Mutation', updateTodo: { 
 
 
 export const TodosDocument = gql`
-    query Todos($skip: Int!, $take: Int!) {
-  todos(skip: $skip, take: $take) {
+    query Todos($skip: Int!, $take: Int!, $statuses: [TodoStatus!]) {
+  todos(skip: $skip, take: $take, statuses: $statuses) {
     items {
       createdAt
       id
@@ -143,6 +145,7 @@ export const TodosDocument = gql`
  *   variables: {
  *      skip: // value for 'skip'
  *      take: // value for 'take'
+ *      statuses: // value for 'statuses'
  *   },
  * });
  */
