@@ -27,7 +27,7 @@ export type CreateTodoInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   createTodo: Todo;
-  removeTodo: Todo;
+  removeTodo: Scalars['String']['output'];
   updateTodo: Todo;
 };
 
@@ -114,6 +114,13 @@ export type UpdateTodoStatusMutationVariables = Exact<{
 
 
 export type UpdateTodoStatusMutation = { __typename?: 'Mutation', updateTodo: { __typename?: 'Todo', id: string, name: string, status: TodoStatus, createdAt: string, updatedAt: string } };
+
+export type RemoveTodoMutationVariables = Exact<{
+  removeTodoId: Scalars['String']['input'];
+}>;
+
+
+export type RemoveTodoMutation = { __typename?: 'Mutation', removeTodo: string };
 
 
 export const TodosDocument = gql`
@@ -243,3 +250,34 @@ export function useUpdateTodoStatusMutation(baseOptions?: Apollo.MutationHookOpt
 export type UpdateTodoStatusMutationHookResult = ReturnType<typeof useUpdateTodoStatusMutation>;
 export type UpdateTodoStatusMutationResult = Apollo.MutationResult<UpdateTodoStatusMutation>;
 export type UpdateTodoStatusMutationOptions = Apollo.BaseMutationOptions<UpdateTodoStatusMutation, UpdateTodoStatusMutationVariables>;
+export const RemoveTodoDocument = gql`
+    mutation RemoveTodo($removeTodoId: String!) {
+  removeTodo(id: $removeTodoId)
+}
+    `;
+export type RemoveTodoMutationFn = Apollo.MutationFunction<RemoveTodoMutation, RemoveTodoMutationVariables>;
+
+/**
+ * __useRemoveTodoMutation__
+ *
+ * To run a mutation, you first call `useRemoveTodoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveTodoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeTodoMutation, { data, loading, error }] = useRemoveTodoMutation({
+ *   variables: {
+ *      removeTodoId: // value for 'removeTodoId'
+ *   },
+ * });
+ */
+export function useRemoveTodoMutation(baseOptions?: Apollo.MutationHookOptions<RemoveTodoMutation, RemoveTodoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveTodoMutation, RemoveTodoMutationVariables>(RemoveTodoDocument, options);
+      }
+export type RemoveTodoMutationHookResult = ReturnType<typeof useRemoveTodoMutation>;
+export type RemoveTodoMutationResult = Apollo.MutationResult<RemoveTodoMutation>;
+export type RemoveTodoMutationOptions = Apollo.BaseMutationOptions<RemoveTodoMutation, RemoveTodoMutationVariables>;

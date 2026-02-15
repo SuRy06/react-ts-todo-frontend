@@ -1,15 +1,16 @@
 import { useState } from "react";
 import TodoInput from "../components/todos/TodoInput.tsx";
 import TodoList from "../components/todos/TodoList.tsx";
-import type { Todo } from "../types/index.ts";
+import type { Todo, TodoStatus } from "../types/index.ts";
 
 // Type definition for all props this component receives from the parent (App.tsx)
 type TodosPageProps = {
-  pendingTodos: Todo[]; // Array of incomplete todos (UNDONE, INPROGRESS)
+  pendingTodos: Todo[]; // Array of incomplete todos (UNDONE)
   inProgressTodos: Todo[]; // Array of in-progress todos (INPROGRESS)
   doneTodos: Todo[]; // Array of completed todos (DONE)
   onAdd: (text: string) => void; // Callback to create a new todo
-  onToggleDone: (id: string) => void; // Callback to change a todo's status
+  onToggle: (id: string, status: TodoStatus) => void; // Callback to change a todo's status
+  onDelete: (id: string) => void; // Callback to delete a todo
   pendingPage: number; // Current page number for pending todos
   inProgressPage: number; // Current page number for in-progress todos
   donePage: number; // Current page number for done todos
@@ -27,7 +28,8 @@ function TodosPage({
   inProgressTodos,
   doneTodos,
   onAdd,
-  onToggleDone,
+  onToggle,
+  onDelete,
   pendingPage,
   inProgressPage,
   donePage,
@@ -161,7 +163,7 @@ function TodosPage({
       </div>
 
       {/* Display the todo list for the active tab */}
-      <TodoList todos={listTodos} onToggleDone={onToggleDone} />
+      <TodoList todos={listTodos} onToggle={onToggle} onDelete={onDelete} />
     </div>
   );
 }

@@ -5,314 +5,76 @@ import PasscodeModal from "./components/modals/PasscodeModal.tsx";
 import HomePage from "./pages/HomePage.tsx";
 import TodosPage from "./pages/TodosPage.tsx";
 import { Routes, Route } from "react-router-dom";
-import {
-  TodosDocument,
-  type TodosQuery,
-  type TodoStatus,
-  useCreateTodoMutation,
-  useTodosQuery,
-  useUpdateTodoStatusMutation,
-} from "./services/graphql/generated/graphql";
+import useTodos from "./hooks/useTodos.ts";
+import type { TodoStatus } from "./services/graphql/generated/graphql";
 
 // Simple passcode gate for toggling todo status.
 const CORRECT_PASSCODE = "1234";
 const PAGE_SIZE = 10;
-const PENDING_STATUSES: TodoStatus = "UNDONE";
-const IN_PROGRESS_STATUSES: TodoStatus = "INPROGRESS";
-const DONE_STATUSES: TodoStatus = "DONE";
 
 function App() {
   // UI state for the passcode modal and any pending toggle action.
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [pendingToggleId, setPendingToggleId] = useState<string | null>(null);
-  // Local error state to supplement GraphQL errors.
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  // Pagination state for each tab.
-  const [pendingPage, setPendingPage] = useState(1);
-  const [inProgressPage, setInProgressPage] = useState(1);
-  const [donePage, setDonePage] = useState(1);
-
-  // Fetch pending todos.
-  console.log("pendingPage", pendingPage);
-
-  const pendingSkip = (pendingPage - 1) * PAGE_SIZE;
-  console.log("pendingSkip", pendingSkip);
-
-  const pendingVariables = {
-    skip: pendingSkip,
-    take: PAGE_SIZE,
-    statuses: PENDING_STATUSES,
-  };
+  const [toggle, setToggle] = useState<{
+    id: string;
+    status: TodoStatus;
+  } | null>(null);
   const {
-    data: pendingData,
-    loading: pendingLoading,
-    error: pendingError,
-  } = useTodosQuery({
-    variables: pendingVariables,
-  });
-
-  // Fetch in-progress todos.
-  const inProgressSkip = (inProgressPage - 1) * PAGE_SIZE;
-  const inProgressVariables = {
-    skip: inProgressSkip,
-    take: PAGE_SIZE,
-    statuses: IN_PROGRESS_STATUSES,
-  };
-  const {
-    data: inProgressData,
-    loading: inProgressLoading,
-    error: inProgressError,
-  } = useTodosQuery({
-    variables: inProgressVariables,
-  });
-
-  // Fetch done todos.
-  const doneSkip = (donePage - 1) * PAGE_SIZE;
-  const doneVariables = {
-    skip: doneSkip,
-    take: PAGE_SIZE,
-    statuses: DONE_STATUSES,
-  };
-  const {
-    data: doneData,
-    loading: doneLoading,
-    error: doneError,
-  } = useTodosQuery({
-    variables: doneVariables,
-  });
-  // Create todo mutation with cache update for instant UI feedback.
-  const [createTodoMutation] = useCreateTodoMutation({
-    update(cache, result) {
-      const created = result.data?.createTodo;
-      if (!created) {
-        return;
-      }
-
-      // Merge the new todo into the existing cached list.
-      const existing = cache.readQuery<TodosQuery>({
-        query: TodosDocument,
-        variables: pendingVariables,
-      });
-      const previous = existing?.todos.items ?? [];
-      const nextItems =
-        pendingSkip === 0
-          ? [created, ...previous].slice(0, PAGE_SIZE)
-          : previous;
-      const nextTotal = (existing?.todos.totalCount ?? 0) + 1;
-
-      cache.writeQuery<TodosQuery>({
-        query: TodosDocument,
-        variables: pendingVariables,
-        data: {
-          todos: {
-            __typename: "TodoPage",
-            items: nextItems,
-            totalCount: nextTotal,
-          },
-        },
-      });
-    },
-  });
-  // Update todo status mutation with cache sync.
-  const [updateTodoMutation] = useUpdateTodoStatusMutation({
-    update(cache, result) {
-      const updated = result.data?.updateTodo;
-      if (!updated) {
-        return;
-      }
-
-      // Replace the updated todo in the cached list.
-      const pendingExisting = cache.readQuery<TodosQuery>({
-        query: TodosDocument,
-        variables: pendingVariables,
-      });
-      const doneExisting = cache.readQuery<TodosQuery>({
-        query: TodosDocument,
-        variables: doneVariables,
-      });
-
-      const pendingItems = pendingExisting?.todos.items ?? [];
-      const doneItems = doneExisting?.todos.items ?? [];
-      const pendingHas = pendingItems.some((todo) => todo.id === updated.id);
-      const doneHas = doneItems.some((todo) => todo.id === updated.id);
-
-      if (updated.status === "DONE") {
-        const nextPendingItems = pendingHas
-          ? pendingItems.filter((todo) => todo.id !== updated.id)
-          : pendingItems;
-        const nextPendingTotal = pendingHas
-          ? Math.max(0, (pendingExisting?.todos.totalCount ?? 0) - 1)
-          : (pendingExisting?.todos.totalCount ?? 0);
-
-        const nextDoneItems =
-          doneSkip === 0
-            ? [
-                updated,
-                ...doneItems.filter((todo) => todo.id !== updated.id),
-              ].slice(0, PAGE_SIZE)
-            : doneItems;
-        const nextDoneTotal = doneHas
-          ? (doneExisting?.todos.totalCount ?? 0)
-          : (doneExisting?.todos.totalCount ?? 0) + 1;
-
-        if (pendingExisting) {
-          cache.writeQuery<TodosQuery>({
-            query: TodosDocument,
-            variables: pendingVariables,
-            data: {
-              todos: {
-                __typename: "TodoPage",
-                items: nextPendingItems,
-                totalCount: nextPendingTotal,
-              },
-            },
-          });
-        }
-
-        if (doneExisting) {
-          cache.writeQuery<TodosQuery>({
-            query: TodosDocument,
-            variables: doneVariables,
-            data: {
-              todos: {
-                __typename: "TodoPage",
-                items: nextDoneItems,
-                totalCount: nextDoneTotal,
-              },
-            },
-          });
-        }
-
-        return;
-      }
-
-      const nextPendingItems =
-        pendingSkip === 0
-          ? [
-              updated,
-              ...pendingItems.filter((todo) => todo.id !== updated.id),
-            ].slice(0, PAGE_SIZE)
-          : pendingHas
-            ? pendingItems.map((todo) =>
-                todo.id === updated.id ? updated : todo,
-              )
-            : pendingItems;
-      const nextPendingTotal = pendingHas
-        ? (pendingExisting?.todos.totalCount ?? 0)
-        : (pendingExisting?.todos.totalCount ?? 0) + 1;
-
-      const nextDoneItems = doneHas
-        ? doneItems.filter((todo) => todo.id !== updated.id)
-        : doneItems;
-      const nextDoneTotal = doneHas
-        ? Math.max(0, (doneExisting?.todos.totalCount ?? 0) - 1)
-        : (doneExisting?.todos.totalCount ?? 0);
-
-      if (pendingExisting) {
-        cache.writeQuery<TodosQuery>({
-          query: TodosDocument,
-          variables: pendingVariables,
-          data: {
-            todos: {
-              __typename: "TodoPage",
-              items: nextPendingItems,
-              totalCount: nextPendingTotal,
-            },
-          },
-        });
-      }
-
-      if (doneExisting) {
-        cache.writeQuery<TodosQuery>({
-          query: TodosDocument,
-          variables: doneVariables,
-          data: {
-            todos: {
-              __typename: "TodoPage",
-              items: nextDoneItems,
-              totalCount: nextDoneTotal,
-            },
-          },
-        });
-      }
-    },
-  });
-
-  // Normalize data for rendering.
-  const pendingTodos = pendingData?.todos.items ?? [];
-  console.log("pending=", pendingTodos);
-  const inProgressTodos = inProgressData?.todos.items ?? [];
-  console.log("inProgress=", inProgressTodos);
-  const doneTodos = doneData?.todos.items ?? [];
-  console.log("done=", doneTodos);
-
-  const pendingTotalCount = pendingData?.todos.totalCount ?? 0;
-  const inProgressTotalCount = inProgressData?.todos.totalCount ?? 0;
-  const doneTotalCount = doneData?.todos.totalCount ?? 0;
-  const allTodos = [...pendingTodos, ...inProgressTodos, ...doneTodos];
-  const isLoading = pendingLoading || inProgressLoading || doneLoading;
-  const displayedErrorMessage =
-    pendingError?.message ??
-    inProgressError?.message ??
-    doneError?.message ??
-    errorMessage;
-
-  // Create a new todo and handle any errors.
-  const handleAddTodo = async (text: string) => {
-    try {
-      await createTodoMutation({
-        variables: { name: text },
-      });
-      setErrorMessage(null);
-    } catch (error: unknown) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "Failed to add todo",
-      );
-    }
-  };
+    pendingTodos,
+    inProgressTodos,
+    doneTodos,
+    pendingTotalCount,
+    inProgressTotalCount,
+    doneTotalCount,
+    pendingPage,
+    inProgressPage,
+    donePage,
+    setPendingPage,
+    setInProgressPage,
+    setDonePage,
+    isLoading,
+    displayedErrorMessage,
+    allTodos,
+    handleAddTodo,
+    handleDeleteTodo,
+    updateTodoStatus,
+  } = useTodos(PAGE_SIZE);
 
   // Open passcode modal before allowing a status toggle.
-  const handleToggleRequest = (id: string) => {
-    setPendingToggleId(id);
+  const handleToggleRequest = (id: string, status: TodoStatus) => {
+    setToggle({ id, status });
     setIsModalOpen(true);
   };
 
   // Validate passcode and perform the status toggle.
   const handlePasscodeSubmit = async (passcode: string) => {
-    if (passcode !== CORRECT_PASSCODE || pendingToggleId === null) {
+    if (passcode !== CORRECT_PASSCODE || toggle === null) {
       return;
     }
 
     // Look up the current todo to determine next status.
-    const current = allTodos.find((todo) => todo.id === pendingToggleId);
+    const current = allTodos.find((todo) => todo.id === toggle.id);
     if (!current) {
       return;
     }
 
-    // Toggle DONE <-> UNDONE.
-    const nextStatus = current.status === "DONE" ? "UNDONE" : "DONE";
+    // Cycle: DONE → INPROGRESS → UNDONE → DONE
+    const nextStatus: TodoStatus =
+      current.status === "UNDONE"
+        ? "INPROGRESS"
+        : current.status === "INPROGRESS"
+          ? "DONE"
+          : "UNDONE";
 
-    try {
-      await updateTodoMutation({
-        variables: {
-          id: pendingToggleId,
-          status: nextStatus,
-        },
-      });
-      setErrorMessage(null);
-      setIsModalOpen(false);
-      setPendingToggleId(null);
-    } catch (error: unknown) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "Failed to update todo",
-      );
-    }
+    await updateTodoStatus(toggle.id, nextStatus);
+    setIsModalOpen(false);
+    setToggle(null);
   };
 
   // Close modal and clear any pending toggle.
   const handleModalCancel = () => {
     setIsModalOpen(false);
-    setPendingToggleId(null);
+    setToggle(null);
   };
 
   return (
@@ -333,7 +95,8 @@ function App() {
                 inProgressTodos={inProgressTodos}
                 doneTodos={doneTodos}
                 onAdd={handleAddTodo}
-                onToggleDone={handleToggleRequest}
+                onToggle={handleToggleRequest}
+                onDelete={handleDeleteTodo}
                 pageSize={PAGE_SIZE}
                 pendingPage={pendingPage}
                 inProgressPage={inProgressPage}

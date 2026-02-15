@@ -1,9 +1,10 @@
-import type { Todo } from "../services/graphql/generated/graphql";
+import type { Todo, TodoStatus } from "../services/graphql/generated/graphql";
 
 export type { Todo, TodoStatus } from "../services/graphql/generated/graphql";
 export type TodoListProps = {
   todos: Todo[];
-  onToggleDone: (id: string) => void;
+  onToggle: (id: string, status: TodoStatus) => void;
+  onDelete: (id: string) => void;
 };
 
 export type TodoInputProps = {

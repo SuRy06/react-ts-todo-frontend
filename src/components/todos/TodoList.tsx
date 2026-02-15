@@ -1,6 +1,6 @@
 import type { TodoListProps } from "../../types/index.ts";
 
-function TodoList({ todos, onToggleDone }: TodoListProps) {
+function TodoList({ todos, onToggle, onDelete }: TodoListProps) {
   // Reusable component: displays whatever todos array is passed in
   // The parent component (TodosPage) handles filtering by tab
   return (
@@ -18,13 +18,13 @@ function TodoList({ todos, onToggleDone }: TodoListProps) {
                 todo.status === "INPROGRESS" ? " todo-inprogress" : ""
               }`}
               // Make the whole list item clickable to toggle status
-              onClick={() => onToggleDone(todo.id)}
+              onClick={() => onToggle(todo.id, todo.status)}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
                 // Support keyboard toggling for accessibility
                 if (e.key === "Enter" || e.key === " ") {
-                  onToggleDone(todo.id);
+                  onToggle(todo.id, todo.status);
                 }
               }}
             >
@@ -34,7 +34,10 @@ function TodoList({ todos, onToggleDone }: TodoListProps) {
               <button
                 type="button"
                 className="todo-delete"
-                onClick={(event) => event.stopPropagation()}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onDelete(todo.id);
+                }}
                 aria-label={`Delete ${todo.name}`}
               >
                 <span className="todo-delete-icon" aria-hidden="true">

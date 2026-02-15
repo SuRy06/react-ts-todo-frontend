@@ -30,3 +30,7 @@ mutation UpdateTodoStatus($id: String!, $status: TodoStatus!) {
     updatedAt
   }
 }
+
+mutation RemoveTodo($removeTodoId: String!) {
+  removeTodo(id: $removeTodoId)
+}
