@@ -4,7 +4,7 @@ import "./Navbar.css";
 import { NavLink } from "react-router-dom";
 
 function Navbar() {
-  const { isLoggedIn, signIn, signOut } = useAuth();
+  const { isLoggedIn, signOut } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const throttleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -59,9 +59,9 @@ function Navbar() {
               Sign Out
             </button>
           ) : (
-            <button onClick={signIn} className="btn btn-primary">
+            <NavLink to="/signin" className="btn btn-primary">
               Sign In
-            </button>
+            </NavLink>
           )}
         </div>
       </div>

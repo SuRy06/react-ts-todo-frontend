@@ -4,6 +4,8 @@ import Header from "./components/layout/Header.tsx";
 import PasscodeModal from "./components/modals/PasscodeModal.tsx";
 import HomePage from "./pages/HomePage.tsx";
 import TodosPage from "./pages/TodosPage.tsx";
+import SignInPage from "./pages/SignInPage.tsx";
+import SignUpPage from "./pages/SignUpPage.tsx";
 import { Routes, Route } from "react-router-dom";
 import useTodos from "./hooks/useTodos.ts";
 import type { TodoStatus } from "./services/graphql/generated/graphql";
@@ -87,6 +89,8 @@ function App() {
         )}
         <Routes>
           <Route path="/" element={<HomePage onAdd={handleAddTodo} />} />
+          <Route path="/signin" element={<SignInPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
           <Route
             path="/todos"
             element={
